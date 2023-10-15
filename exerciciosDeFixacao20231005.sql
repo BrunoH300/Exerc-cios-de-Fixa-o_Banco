@@ -62,3 +62,24 @@ begin
 end;
 call listar_livros_por_autor('Maria','Fernandes');
 
+
+
+3. Função para Atualizar Resumos de Livros
+	
+create procedure atualizar_resumos ()
+begin 
+	DECLARE done_loop int default 0;
+    declare id_for_book_cursor int;
+    declare v_resumo_for_book text;
+    declare cursor_update_resumos_livros cursor for select id, resumo from livro;
+    declare continue handler for not found set done_loop = 1;
+    open cursor_update_resumos_livros;
+    while(done_loop != 1)do
+		fetch cursor_update_resumos_livros into id_for_book_cursor, v_resumo_for_book;
+        update livro set resumo = CONCAT(v_resumo_for_book, " Este é um excelente livro!") where id = id_for_book_cursor;
+    end while;
+    close cursor_update_resumos_livros;
+    select resumo from livro;
+end;
+call atualizar_resumos();
+
