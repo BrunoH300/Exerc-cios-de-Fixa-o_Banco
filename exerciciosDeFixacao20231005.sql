@@ -31,3 +31,34 @@ delimiter ;
 call total_livros_por_genero('Biografia',@valor_livro);
 select @valor_livro;
 
+
+
+2. Função para Listar Livros de um Autor Específico
+
+create procedure listar_livros_por_autor( p_primeiro_nome varchar(255),p_segundo_nome varchar(255))
+begin
+	DECLARE done_loop int default 0;
+    declare v_id_autor int;
+    declare v_id_autor_cursor int;
+    declare v_id_livro int;
+    declare titulo_livro varchar(255);
+    
+    
+    DECLARE cursor_livros_autor CURSOR FOR select id_autor, id_livro from livro_autor;
+    declare continue handler for not found set done_loop = 1;
+    drop table temp_table;
+    create temporary table if not exists temp_table (titulo_livro VARCHAR(255));
+    select id into v_id_autor from autor where primeiro_nome = p_primeiro_nome and ultimo_nome = p_segundo_nome;
+    open cursor_livros_autor;
+    while(done_loop != 1) do
+		fetch cursor_livros_autor into v_id_autor_cursor, v_id_livro;
+		 if v_id_autor = v_id_autor_cursor then
+			select titulo into titulo_livro from livro where id = v_id_livro;
+			insert into temp_table values(titulo_livro);
+        end if;
+    end while;
+    close cursor_livros_autor;
+    select * from temp_table;
+end;
+call listar_livros_por_autor('Maria','Fernandes');
+
